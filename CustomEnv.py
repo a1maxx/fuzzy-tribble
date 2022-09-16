@@ -2,9 +2,9 @@ import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
 import random
-# from tensorflow.python.keras.models import Sequential
-# from tensorflow.python.keras.layers import  Dense,Flatten
-# from keras.optimizers import Adam
+from tensorflow.python.keras.models import Sequential
+from tensorflow.python.keras.layers import  Dense,Flatten
+from keras.optimizers import Adam
 
 
 
@@ -48,8 +48,8 @@ class CustomEnv(Env):
         self.shower_length = 60
         return self.state
 
-    # def build_model(self,states, actions):
-    #     model = Sequential()
-    #     model.add(Dense(24, activation='relu', input_shape=self))
-    #     model.add(Dense(24,activation='relu'))
-    #     model.add(Dense(actions,activation='linear'))
+    def build_model(self,states, actions):
+        model = Sequential()
+        model.add(Dense(24, activation='relu', input_shape=self))
+        model.add(Dense(24,activation='relu'))
+        model.add(Dense(actions,activation='linear'))
