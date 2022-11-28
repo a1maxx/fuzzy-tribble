@@ -21,6 +21,7 @@ class CustomEnv2(Env):
 
     def __init__(self):
         self.numberOfPeriods = 2
+        self.periods = self.numberOfPeriods
         self.numberOfSensors = 3
         self.distributions = ['normal', 'normal', 'normal']
         self.mean = [2, 5, 10]
@@ -29,28 +30,39 @@ class CustomEnv2(Env):
         self.standardDeviation = [1, 0.2, 0.1]
         self.driftProbability = [0.1, 0.2, 0.5]
         self.driftRateOfMean = [1, 2, 3]
-        self.state = [10, 15, 20]  # Resource Allocated
+        # self.state = [10, 15, 20]  # Resource Allocated
+        # self.state = [np.random.randint(10, 25) for _ in range(self.numberOfSensors)]
+        self.state = gym.spaces.Box(low=np.array([1, 1, 1]),
+                                            high=np.array([100, 100, 100]),
+                                            dtype=np.int16)
         self.resourceCapacity = 55
 
-        self.action_space = gym.spaces.Box(low=np.zeros(self.numberOfSensors),
-                                           high=np.ones(self.numberOfSensors) * 5, dtype=np.int16)
+        # self.action_space = gym.spaces.Box(low=np.zeros(self.numberOfSensors),
+        #                                    high=np.ones(self.numberOfSensors) * 5, dtype=np.int16)
 
-        self.observation_space = spaces.Box(low=np.array([0,0,0]),
+        self.action_space = gym.spaces.MultiDiscrete(np.array([5,5,5]))
+
+
+        self.observation_space = gym.spaces.Box(low=np.array([1, 1, 1]),
                                             high=np.array([100, 100, 100]),
                                             dtype=np.int16)
 
-        self.action_space
+
+
+
+
 
     def reset(self):
         self.numberOfPeriods = 2
+        self.periods = self.numberOfPeriods
         self.numberOfSensors = 3
         self.distributions = ['normal', 'normal', 'normal']
         self.mean = [2, 5, 10]
         self.eMean = [1, 4, 9]
         self.standardDeviation = [1, 0.2, 0.1]
         self.driftProbability = [0.1, 0.2, 0.5]
-        self.driftRateOfMean = [1, 2, 3]
-        self.state = [10, 15, 20]
+        self.driftRateOfMean = [1, 1, 1]
+        self.state = [np.random.randint(10, 25) for _ in range(self.numberOfSensors)]
         # self.resourceCapacity = 55
 
         return self.state
@@ -60,18 +72,19 @@ class CustomEnv2(Env):
         self.periods -= 1
 
         for i in range(self.numberOfSensors):
-            if random.uniform(0, 1, 1)[0] < self.driftProbability:
-                if random.uniform(0, 1, 1)[0] < 0.5:
-                    self.mean[i] -= self.driftRateOfMean
+            if random.uniform(0,1) < self.driftProbability[i]:
+                if random.uniform(0,1) < 0.5:
+                    self.mean[i] -= self.driftRateOfMean[i]
                 else:
-                    self.mean[i] += self.driftRateOfMean
+                    self.mean[i] += self.driftRateOfMean[i]
             measurements = self.createMeasurements(i)
             results = minimize(gaussian, [1, 1], measurements, method='Nelder-Mead')
             self.eMean = results.x[0]
 
-        reward = np.sum(-abs(np.array(self.eMean) - np.array(self.mean))) * np.sum(np.array(self.state))
+        reward = (np.sum(-abs(np.array(self.eMean) - np.array(self.mean))) *
+                  np.sum(np.array(self.state)))
 
-        if self.periods == 0:
+        if self.periods <= 0:
             done = True
         else:
             done = False
@@ -83,5 +96,6 @@ class CustomEnv2(Env):
     def render(self):
         pass
 
-    def createMeasurements(self, sensorNo):
-        return random.normal(self.mean[sensorNo], self.standardDeviation[sensorNo], self.state[sensorNo] * 10)
+    def createMeasurements(self, sensorno):
+        return np.random.normal(self.mean[sensorno], self.standardDeviation[sensorno],
+                             self.state[sensorno] * 100)
