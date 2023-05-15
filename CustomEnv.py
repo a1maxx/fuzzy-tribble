@@ -2,16 +2,16 @@ import numpy as np
 from gym import Env
 from gym.spaces import Box, Discrete
 import random
-
-
+from stable_baselines3 import PPO  # DQN coming soon
+import logging
 
 
 class CustomEnv(Env):
 
     def __init__(self):
         self.action_space = Discrete(3)
-        self.observation_space = Box(low=np.array([0]), high=np.array([100]),dtype='float32')
-        self.state = 38 + random.randint(-3,3)
+        self.observation_space = Box(low=np.array([0]), high=np.array([100]), dtype='float32')
+        self.state = 38 + random.randint(-3, 3)
         self.shower_length = 60
 
     def step(self, action):
@@ -19,7 +19,7 @@ class CustomEnv(Env):
         self.shower_length -= 1
 
         # Calculating the reward
-        if self.state >= 37 and self.state <= 39:
+        if 37 <= self.state <= 39:
             reward = 1
         else:
             reward = -1
@@ -40,8 +40,12 @@ class CustomEnv(Env):
         pass
 
     def reset(self):
-        self.state = 38 + random.randint(-3,3)
+        self.state = 38 + random.randint(-3, 3)
         self.shower_length = 60
         return self.state
 
 
+env = CustomEnv()
+model = PPO('MlpPolicy', env, verbose=1)
+logging.getLogger('pyomo.core').setLevel(logging.ERROR)
+model.learn(total_timesteps=100, log_interval=1)

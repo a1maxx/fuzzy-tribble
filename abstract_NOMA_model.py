@@ -19,7 +19,6 @@ def solve_noma(cluster_size):
     model.NOFD = pyo.Param(initialize=4)  ## Number of devices
     model.NOFTF = pyo.Param(initialize=1)  ## Number of time frames
     model.NOFS = pyo.Param(initialize=5)  ## Number of time slots
-    # model.C = pyo.Param(initialize=2)  ## Cluster size
     model.M = pyo.RangeSet(1, model.NOFD)  ## Range of devices
     model.K = pyo.RangeSet(1, model.NOFTF)  ## Range of time frames
     model.S = pyo.RangeSet(1, model.NOFS)  ## Range of time slots
@@ -89,7 +88,7 @@ def solve_noma(cluster_size):
         return m.x[i, j, t] <= m.z[i, t]
 
     def constraint_6(m, j, t):
-        return sum(m.x[i, j, t] for i in m.M) <= m.C
+        return sum(m.x[i, j, t] for i in m.M) == m.C
 
     def constraint_7(m, i, t):
         return m.z[i, t] <= m.L[i, t]
