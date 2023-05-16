@@ -181,13 +181,13 @@ df.to_pickle("pickles/comparison_4.pkl")
 
 # %%
 
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 sns.set_theme(style="white")
+plt.rcParams["figure.dpi"] = 300
 
 df = pd.read_pickle("pickles/comparison_4.pkl")
 
@@ -199,12 +199,13 @@ for i in df2.columns:
 
 # df3 = df3.drop('Constant(2)',axis=1)
 
-melted_df = pd.melt(df3.iloc[:, 3:6])
-df4 = df3.iloc[:, 3:6]
+melted_df = pd.melt(df3.iloc[:, [2, 3, 4, 5]])
+df4 = df3.iloc[:, [2, 3, 4, 5]]
 melted_df['Index'] = np.tile(np.arange(1, len(df4) + 1), len(df4.columns))
 
 g = sns.relplot(melted_df, kind='line', x='Index', y="value", hue="variable")
-g._legend.set_title(" ")
+g._legend.remove()
+plt.legend(title='', fontsize='10', title_fontsize='14')
 plt.xlabel("Rank")
 plt.ylabel("Objective Function")
 plt.show()
